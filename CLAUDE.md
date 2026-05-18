@@ -29,44 +29,50 @@ At runtime the browser does **no network calls** — everything is inlined.
 
 | Thing | Path / URL |
 |-------|-----------|
-| **This repo (deploy target)** | `/Users/neilwei/git/github.com/mong0520/ca-trip/` |
-| **Build pipeline** | `/Users/neilwei/trip2026-viewer/` |
+| **This repo (build + deploy in one)** | `/Users/neilwei/git/github.com/mong0520/ca-trip/` |
 | **Service account credential** | `/Users/neilwei/.uid_devops/personal_google_sheets_credential.json` |
 | **Source Google Sheet (user's grid)** | https://docs.google.com/spreadsheets/d/16y_CiDH2TmPyMEkTD2iKNA7ZgJ9LJSQ97A-U4cbAYI0/edit?gid=2057583261 |
-| **Travel Template sheet (intermediate / unused after static build)** | https://docs.google.com/spreadsheets/d/1gGeDihacpB_rDrCKEglYCP6qBJPuvHCs8qfdHJlaR34/edit |
+| **Travel Template sheet (legacy, unused)** | https://docs.google.com/spreadsheets/d/1gGeDihacpB_rDrCKEglYCP6qBJPuvHCs8qfdHJlaR34/edit |
 | **Service account email** | `google-photo@myphoto-1527596562021.iam.gserviceaccount.com` |
 | **GCP project** | `myphoto-1527596562021` |
+| **Old build pipeline folder (now redundant)** | `/Users/neilwei/trip2026-viewer/` |
 
-The build pipeline is currently in a **separate folder** (`/Users/neilwei/trip2026-viewer/`).
-You may want to move it here — see "Consolidation suggestion" below.
-
-## Build pipeline files (in `/Users/neilwei/trip2026-viewer/`)
+## Repo contents
 
 ```
-trip2026-viewer/
-├── Taskfile.yml      # `task render` reads SHEET_URL hardcoded here
+ca-trip/
+├── Taskfile.yml      # task render / serve / deploy / clean — SHEET_URL hardcoded
 ├── build.py          # fetch sheet → transform grid → inject into template
 ├── template.html     # HTML shell with __INLINE_DATA__ + __BUILT_AT__ + __SOURCE_URL__ placeholders
-├── viewer.html       # legacy dynamic version (uses gviz CSV fetch, kept for reference)
-├── dist/index.html   # build output
-└── README.md
+├── index.html        # generated static site (served by GitHub Pages)
+├── .gitignore
+├── README.md         # short public-facing README
+└── CLAUDE.md         # this file
 ```
 
-### How to update the site
+## How to update the site
 
 ```bash
-# 1. Edit the Google Sheet (the time × day grid one) — user does this in browser
-# 2. Rebuild static HTML
-cd /Users/neilwei/trip2026-viewer && task render
-# 3. Copy to this repo and push
-cp /Users/neilwei/trip2026-viewer/dist/index.html /Users/neilwei/git/github.com/mong0520/ca-trip/index.html
-cd /Users/neilwei/git/github.com/mong0520/ca-trip
-git add index.html && git commit -m "update $(date +%F)" && git push
-# GitHub Pages auto-rebuilds in ~30 seconds
+# 1. Edit the Google Sheet in browser (the time × day grid)
+# 2. From repo root:
+task deploy
 ```
 
-The user asked at the end of last session whether to wrap this into a single `task deploy` command —
-that was not yet done.
+`task deploy` does: `render` (regenerates `index.html`) → `git add` → commit → push.
+If the rendered HTML is unchanged (e.g. you ran it twice with no sheet edits),
+it prints "No content changes; nothing to deploy" and exits cleanly.
+
+GitHub Pages auto-rebuilds in ~30 seconds after push.
+
+### Other tasks
+
+| Command | What it does |
+|---------|--------------|
+| `task` | List tasks |
+| `task render` | Just rebuild `index.html`, don't commit |
+| `task serve` | Render + serve at `http://localhost:8765` (good for preview) |
+| `task deploy` | Render + commit + push (the main workflow) |
+| `task clean` | Remove `__pycache__/` |
 
 ## Source sheet format (the quirky part)
 
@@ -149,51 +155,17 @@ Example: `warn:入境旺季排隊 60 分鐘;tip:女孩必拍`
 `day_id` in spots/meals matches `id` in days (string).
 Hotels' `region` controls the grouping headers in the Hotels tab.
 
-## Consolidation suggestion (not yet done)
+## Future improvements (not yet done)
 
-The build pipeline (`build.py`, `Taskfile.yml`, `template.html`) currently lives in
-`/Users/neilwei/trip2026-viewer/` — separate from this repo. To consolidate:
-
-```bash
-# Move build files into this repo
-cd /Users/neilwei/git/github.com/mong0520/ca-trip
-cp /Users/neilwei/trip2026-viewer/{build.py,Taskfile.yml,template.html} .
-
-# Adjust Taskfile so OUTPUT goes to ./index.html (root, not dist/)
-sed -i '' "s|dist/index.html|index.html|" Taskfile.yml
-
-# Add a `deploy` task that runs render + git push
-# (see Future improvements below)
-
-git add build.py Taskfile.yml template.html .gitignore
-git commit -m "Move build pipeline into repo"
-git push
-```
-
-**`.gitignore` to add:**
-```
-__pycache__/
-*.pyc
-.DS_Store
-# Don't commit credentials — they live in ~/.uid_devops/ outside the repo
-```
-
-After consolidation, the workflow becomes:
-
-```bash
-cd /Users/neilwei/git/github.com/mong0520/ca-trip
-task deploy   # render + commit + push, one command
-```
-
-## Future improvements (mentioned but not done)
-
-1. **`task deploy` command** — combine render + git commit + git push
-2. **GitHub Actions** — auto-rebuild on a schedule (would need credential as encrypted secret;
+1. **GitHub Actions** — auto-rebuild on a schedule (would need credential as encrypted secret;
    careful: it's a personal service account, not project-scoped)
-3. **Auto-detect dates from sheet** — instead of hardcoded `DAYS_LAYOUT` in `build.py`
-4. **Smart meal name extraction** — improve regex to handle cases like
+2. **Auto-detect dates from sheet** — instead of hardcoded `DAYS_LAYOUT` in `build.py`
+3. **Smart meal name extraction** — improve regex to handle cases like
    `"X and lunch @ Y"` (currently leaks "and")
-5. **Hotel name cleanup** — strip prices, room counts from name field
+4. **Hotel name cleanup** — strip prices, room counts from name field
+5. **Skip identical re-renders** — currently `task deploy` always produces a different
+   `__BUILT_AT__` timestamp, so the commit will always have a diff (even if just one line).
+   Consider hashing content excluding the timestamp.
 
 ## Quirks worth knowing
 

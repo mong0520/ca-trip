@@ -1,0 +1,49 @@
+version: '3'
+
+vars:
+  SHEET_URL: 'https://docs.google.com/spreadsheets/d/16y_CiDH2TmPyMEkTD2iKNA7ZgJ9LJSQ97A-U4cbAYI0/edit?gid=2057583261'
+  CREDENTIAL: '{{.HOME}}/.uid_devops/personal_google_sheets_credential.json'
+  TEMPLATE: 'template.html'
+  OUTPUT: 'index.html'
+  LIVE_URL: 'https://mong0520.github.io/ca-trip/'
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  render:
+    desc: Fetch sheet & rebuild index.html
+    cmds:
+      - python3 build.py
+          --sheet-url "{{.SHEET_URL}}"
+          --credential "{{.CREDENTIAL}}"
+          --template "{{.TEMPLATE}}"
+          --output "{{.OUTPUT}}"
+
+  serve:
+    desc: Render then serve at http://localhost:8765
+    cmds:
+      - task: render
+      - echo "→ http://localhost:8765/"
+      - python3 -m http.server 8765
+
+  deploy:
+    desc: Render, commit & push to GitHub Pages
+    cmds:
+      - task: render
+      - git add {{.OUTPUT}}
+      - |
+        if git diff --staged --quiet; then
+          echo "✓ No content changes; nothing to deploy."
+        else
+          git commit -m "update $(date +%Y-%m-%d)"
+          git push
+          echo "✓ Deployed → {{.LIVE_URL}}"
+        fi
+
+  clean:
+    desc: Remove build artifacts (does NOT touch git-tracked index.html)
+    cmds:
+      - find . -type d -name __pycache__ -prune -exec rm -rf {} +

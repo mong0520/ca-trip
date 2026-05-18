@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SF Road Trip · 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8f6f1;--surface:#fff;--border:#e8e3d8;--text:#1c1916;--muted:#6e685f;--accent:#1e4d7b;--accent-bg:#eaf1f8;--gold:#9a6e00;--gold-bg:#fdf7e8;--green:#2d5a2d;--green-bg:#edf5ed;--red:#7a1f1f;--red-bg:#fdf0f0;--pink:#6b2545;--pink-bg:#fdf0f5;--purple:#4a2d7a;--purple-bg:#f2eeff;--route-bg:#f3f1ec;--r:12px;--r-sm:8px}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:'DM Sans','PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.hero{background:var(--text);color:#fff;padding:48px 24px 40px;text-align:center}
+.hero-eyebrow{font-size:11px;letter-spacing:.2em;color:rgba(255,255,255,.4);margin-bottom:14px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,6vw,52px);font-weight:600;letter-spacing:.04em;line-height:1.15;margin-bottom:12px}
+.hero h1 em{font-style:italic;font-weight:400;color:rgba(255,255,255,.65)}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.5);letter-spacing:.07em}
+.hero-pills{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:20px}
+.hero-pill{font-size:11px;padding:4px 13px;border-radius:20px;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7)}
+
+.nav-wrap{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.nav-inner{display:flex;overflow-x:auto;scrollbar-width:none;max-width:960px;margin:0 auto;padding:0 8px}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-tab{flex-shrink:0;padding:13px 15px 11px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-align:center;white-space:nowrap;line-height:1}
+.nav-tab:hover{color:var(--text)}.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-tab-sub{display:block;font-size:9px;font-weight:300;color:var(--muted);margin-top:3px}
+
+.page{display:none}.page.active{display:block}
+.container{max-width:860px;margin:0 auto;padding:28px 16px 80px}
+.day-hero{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.day-num{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:600;line-height:1;margin-bottom:6px}
+.day-date{font-size:20px;font-weight:500}
+.day-theme{font-size:14px;color:#3a3530;margin-top:5px;line-height:1.6}
+.day-core{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--accent);margin-top:8px;line-height:1.5}
+.sec-lbl{font-size:10px;font-weight:500;letter-spacing:.12em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.meals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:28px}
+.meal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden}
+.meal-header{padding:11px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none}
+.meal-header::-webkit-details-marker{display:none}
+.meal-header-left{flex:1;min-width:0}
+.meal-lbl{font-size:10px;font-weight:500;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+.meal-name{font-size:15px;font-weight:500;color:#1c1916;line-height:1.4}
+.meal-note{font-size:13px;color:#3a3530;margin-top:3px;line-height:1.4}
+.meal-empty{font-size:12px;color:#ccc;font-style:italic}
+.meal-toggle{font-size:11px;color:var(--muted);flex-shrink:0;transition:transform .2s}
+details[open] .meal-toggle{transform:rotate(180deg)}
+.meal-body{padding:0 13px 12px;border-top:1px solid var(--border)}
+.meal-option{padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:#2a2520;line-height:1.65}
+.meal-option:last-child{border-bottom:none}
+.meal-option-title{font-weight:600;color:var(--text);margin-bottom:3px}
+.meal-option-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin-right:5px;margin-bottom:3px}
+.badge-best{background:#fff8e8;color:#9a6e00}
+.badge-alt{background:#edf5ed;color:#2d5a2d}
+.meal-link{display:inline-flex;align-items:center;gap:4px;margin-top:6px;margin-right:8px;font-size:12px;color:#1e4d7b;font-weight:500;text-decoration:none}
+.meal-link:hover{text-decoration:underline}
+
+.spots{display:flex;flex-direction:column;gap:4px}
+.spot{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;transition:box-shadow .2s}
+.spot:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.spot-time{font-size:15px;font-weight:700;color:#1c1916}
+.spot-title{font-size:18px;font-weight:500;color:#1c1916;margin-top:3px;line-height:1.4}
+.spot-desc{font-size:15px;color:#2a2520;margin-top:6px;line-height:1.75}
+.spot-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+
+.route-pill{display:flex;align-items:center;gap:0;padding:3px 0 3px 18px}
+.route-arrow{font-size:13px;color:var(--muted);margin-right:10px;flex-shrink:0}
+.route-inner{display:inline-flex;align-items:center;gap:8px;background:var(--route-bg);border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:14px;color:#3a3530;flex-wrap:wrap}
+.rpath{color:var(--text);font-weight:500}.rdot{color:var(--border)}.rwarn{color:var(--red);font-weight:500}
+
+.tag{font-size:12px;font-weight:500;padding:4px 11px;border-radius:10px}
+.tag-drive{background:var(--accent-bg);color:var(--accent)}.tag-food{background:var(--gold-bg);color:var(--gold)}
+.tag-shop{background:var(--pink-bg);color:var(--pink)}.tag-park{background:var(--green-bg);color:var(--green)}
+.tag-hotel{background:var(--purple-bg);color:var(--purple)}.tag-warn{background:var(--red-bg);color:var(--red)}
+.tag-tip{background:var(--green-bg);color:var(--green)}.tag-default{background:var(--bg);color:var(--muted)}
+
+.sec-div{display:flex;align-items:center;gap:14px;margin:32px 0 18px}
+.sec-div-line{flex:1;height:1px;background:var(--border)}
+.sec-div-label{font-size:10px;letter-spacing:.14em;color:var(--muted);padding:5px 16px;border-radius:20px;border:1px solid var(--border);background:var(--surface);white-space:nowrap}
+
+.hotels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.hotel-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.hotel-head{display:flex;gap:12px;align-items:flex-start;padding:15px 16px 12px;border-bottom:1px solid var(--border)}
+.hotel-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;flex-shrink:0}
+.hotel-name{font-size:14px;font-weight:500;line-height:1.4}.hotel-dates{font-size:11px;color:var(--muted);margin-top:3px}
+.hotel-body{padding:12px 16px}.hotel-addr{font-size:11px;color:var(--muted);font-style:italic;margin-bottom:10px}
+.hotel-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:14px;border-bottom:1px solid var(--border);gap:12px}
+.hotel-row:last-of-type{border-bottom:none}.hotel-row .lbl{color:var(--muted);flex-shrink:0}.hotel-row .val{font-weight:500;text-align:right}
+.hotel-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.hotel-conf{font-size:11px;color:var(--muted);margin-top:8px;font-family:monospace;background:var(--bg);padding:6px 10px;border-radius:8px;word-break:break-all;line-height:1.6}
+
+details.rd{margin-top:4px}
+details.rd summary{display:flex;align-items:center;gap:8px;padding:7px 14px;background:var(--route-bg);border:1px solid var(--border);border-radius:20px;font-size:13px;color:var(--muted);cursor:pointer;width:fit-content;user-select:none;transition:all .2s;list-style:none}
+details.rd summary::-webkit-details-marker{display:none}
+details.rd summary::before{content:'▼';font-size:10px;transition:transform .25s;display:inline-block}
+details.rd[open] summary::before{transform:rotate(180deg)}
+details.rd summary:hover{background:#e8e4dc;color:var(--text)}
+details.rd .rd-body{margin-top:6px}
+
+.md-block{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.md-title{font-weight:600;font-size:15px;color:#1c1916;margin-top:4px}
+.md-title:first-child{margin-top:0}
+.md-subtitle{font-weight:600;font-size:14px;color:#1c1916;margin-top:6px}
+.md-p{font-size:14px;color:#2a2520;line-height:1.75}
+.md-warn{font-size:14px;color:var(--red);font-weight:500;line-height:1.7;padding:6px 12px;background:var(--red-bg);border-left:3px solid var(--red);border-radius:6px}
+.md-tip{font-size:14px;color:var(--green);font-weight:500;line-height:1.7;padding:6px 12px;background:var(--green-bg);border-left:3px solid var(--green);border-radius:6px}
+.md-info{font-size:14px;color:var(--accent);font-weight:500;line-height:1.7;padding:6px 12px;background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:6px}
+.md-ul{padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.md-ul li{font-size:14px;color:#2a2520;line-height:1.7}
+.md-break{height:4px}
+
+.footer{max-width:860px;margin:0 auto;padding:24px 16px 60px;font-size:11px;color:var(--muted);text-align:center;line-height:1.8}
+.footer a{color:var(--accent);text-decoration:none}
+.footer a:hover{text-decoration:underline}
+
+@media(max-width:580px){.meals{gap:6px;grid-template-columns:1fr}.meal{padding:9px 10px}.meal-name{font-size:13px}.hotels-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="hero" id="hero"></header>
+<nav class="nav-wrap"><div class="nav-inner" id="nav"></div></nav>
+<div id="pages"></div>
+<footer class="footer">
+  Built <strong>2026-05-18 14:18 UTC+08:00</strong> · <a href="https://docs.google.com/spreadsheets/d/16y_CiDH2TmPyMEkTD2iKNA7ZgJ9LJSQ97A-U4cbAYI0/edit?gid=2057583261" target="_blank" rel="noopener">source sheet ↗</a>
+</footer>
+
+<script id="trip-data" type="application/json">{"meta":[{"key":"eyebrow","value":"SF ROAD TRIP · 2026"},{"key":"title_main","value":"加州"},{"key":"title_em","value":"太平洋公路"},{"key":"title_tail","value":"舊金山"},{"key":"sub","value":"7月19日 — 7月26日 · 8天 · 自駕公路旅行"},{"key":"pill_1","value":"✈ MPK → SFO"},{"key":"pill_2","value":"Big Sur 公路 1 號"},{"key":"pill_3","value":"Monterey · Alcatraz · Muir Woods"},{"key":"pill_4","value":"8天 · 多飯店"}],"days":[{"id":"1","date":"7/19 (日)","title":"南下海岸線啟程","color":"#1e4d7b","theme":"MPK → Santa Barbara → Solvang → Moro Beach","core":""},{"id":"2","date":"7/20 (一)","title":"海洋公路 1 號漫遊","color":"#9a6e00","theme":"Cambria → Hearst Castle → Big Sur → Monterey","core":""},{"id":"3","date":"7/21 (二)","title":"蒙特雷海濱日","color":"#2d5a2d","theme":"Monterey Bay Aquarium → 17 Miles Drive → Carmel-by-the-Sea","core":""},{"id":"4","date":"7/22 (三)","title":"進城舊金山","color":"#4a2d7a","theme":"Drive to SF → Santa Cruz → Half Moon Bay → Pigeon Point → Golden Gate","core":""},{"id":"5","date":"7/23 (四)","title":"舊金山經典 1 日","color":"#7a1f1f","theme":"Boudin → Alcatraz → Cable Car → Union Square → Lombard → Ghirardelli","core":""},{"id":"6","date":"7/24 (五)","title":"金門北岸自然行","color":"#6b2545","theme":"Muir Woods → Sausalito Waterfront → 回到 SF","core":""},{"id":"7","date":"7/25 (六)","title":"矽谷遠足","color":"#0C447C","theme":"Stanford 校園 & 周邊午餐","core":""},{"id":"8","date":"7/26 (日)","title":"返鄉日","color":"#534AB7","theme":"Apple Park Visitor Center → Netskope HQ → Kath's House","core":""}],"spots":[{"day_id":"1","time":"09:00","title":"Drive from MPK to Santa Barbara (1h40m)","desc":"Drive from MPK to Santa Barbara (1h40m)","tags":"drive:駕車","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"1","time":"14:00","title":"To Solvang","desc":"To Solvang","tags":"drive:駕車","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"1","time":"16:00","title":"leave Solvang to San Luis Obispo","desc":"leave Solvang to San Luis Obispo","tags":"drive:駕車","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"1","time":"19:00","title":"🏨 入住 Moro Beach Avolon Inn 7815 for","desc":"Stay @Moro Beach Avolon Inn 7815 for 2 rooms +$122.63 3rd room","tags":"hotel:住宿","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"2","time":"11:00","title":"Hearst Castle","desc":"Hearst Castle","tags":"tip:必訪","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"2","time":"14:00","title":"Elephant Seal","desc":"Elephant Seal, McWay Falls, Bixby Creek Bridge, Pfeiffer Beach","tags":"park:景點","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"2","time":"16:00","title":"Carmel by the Sea","desc":"Carmel by the Sea: Ocean Ave., Carmel Beach, Dessert shops","tags":"park:景點","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"2","time":"17:00","title":"🏨 入住 Monterey","desc":"Checkin Hotel in Monterey","tags":"hotel:住宿","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"3","time":"09:00","title":"Monterey Bay Aquarium","desc":"Monterey Bay Aquarium , 17 Miles Drive (Bird Rock, The Lone Cypress, Spanish Bay)","tags":"tip:必訪","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"3","time":"13:00","title":"Dennis the Menace Playground","desc":"Dennis the Menace Playground","tags":"","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"3","time":"16:00","title":"Folktake winery and vineyards (optional)","desc":"Folktake winery and vineyards (optional)","tags":"tip:可選","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"4","time":"09:00","title":"Check out  and drive to SF (~3.5 hours with stops)","desc":"Check out  and drive to SF (~3.5 hours with stops)","tags":"drive:駕車","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"4","time":"10:00","title":"Optional stops","desc":"Optional stops:","tags":"tip:可選","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"4","time":"11:00","title":"Santa Cruz","desc":"Santa Cruz, Half Moon Bay, Pigeon Point lighthouse","tags":"","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"4","time":"14:00","title":"Golden Gate Bridge","desc":"Golden Gate Bridge, Palace of Fine Arts, Crissy Field","tags":"park:景點","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"4","time":"16:00","title":"🏨 入住 Club Donatello 441 Mason St. S","desc":"Check in Club Donatello 441 Mason St. San Francisco (parking fee $80 daily)","tags":"hotel:住宿","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"5","time":"09:00","title":"- Boudin Bakery Cafe or Eight AM","desc":"- Boudin Bakery Cafe or Eight AM","tags":"","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"5","time":"11:00","title":"Alcatraz Island Ferry 9","desc":"Alcatraz Island Ferry 9:40 or 10:10 ($47.95/adult, $29.15/kid, $139.60/2+2)","tags":"tip:必訪","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"5","time":"14:00","title":"Exploatorium or Cable car+ Union Square","desc":"Exploatorium or Cable car+ Union Square","tags":"","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"5","time":"15:00","title":"Lombard street","desc":"Lombard street, Painted Ladies","tags":"","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"6","time":"08:00","title":"head to Muir monument park (need parking reservati…","desc":"head to Muir monument park (need parking reservation)","tags":"drive:駕車;park:景點","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"6","time":"10:00","title":"visitor center-- Main Trail-- Cross at bridge 2-- …","desc":"visitor center-- Main Trail-- Cross at bridge 2-- return opoosite side","tags":"drive:駕車;park:景點","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"6","time":"12:00","title":"Sausalito Waterfront","desc":"Sausalito Waterfront","tags":"drive:駕車","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"6","time":"19:00","title":"Return to SF","desc":"Return to SF","tags":"drive:駕車","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"7","time":"13:00","title":"Apple Park Visitor Center","desc":"Apple Park Visitor Center, Netskope HQ","tags":"park:景點","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""},{"day_id":"7","time":"17:00","title":"Head to Kath's House","desc":"Head to Kath's House","tags":"drive:駕車","route_path":"","route_time":"","route_warn":"","extra_md":"","route_detail_md":"","rental_md":""}],"meals":[{"day_id":"1","slot":"l","name":"Shoreline Cafe","note":"leadbetter Beach and lunch @ Shoreline Cafe","url":"","options_md":""},{"day_id":"1","slot":"d","name":"SOL or Moro beach","note":"Dinner at SOL or Moro beach","url":"","options_md":""},{"day_id":"2","slot":"b","name":"Lily's cafe or Creekside garden in Cambria (30 min drive)","note":"-Morro bay maritime museum, --Breakfast in Lily's cafe or Creekside garden in Cambria (30 min drive)","url":"","options_md":""},{"day_id":"3","slot":"l","name":"TBD","note":"Lunch @","url":"","options_md":""},{"day_id":"5","slot":"b","name":"public transportation)","note":"8:00 Breakfast (public transportation)","url":"","options_md":""},{"day_id":"5","slot":"l","name":"super duper burger","note":"lunch @ super duper burger","url":"","options_md":""},{"day_id":"5","slot":"d","name":"and Ghirardelli Square","note":"Dinner and Ghirardelli Square","url":"","options_md":""},{"day_id":"7","slot":"l","name":"there","note":"Check out Hotel and Head to Stanford and lunch there","url":"","options_md":""}],"hotels":[{"id":"1","region":"中加州海岸","icon":"A","icon_color":"#0C447C","icon_bg":"#EBF3FB","name":"Moro Beach Avolon Inn 7815 for 2 rooms +$122.63 3rd room","dates":"Day 1（7/19 (日)） 入住","address":"","rows_md":"費用 | $122.63 3rd","tags":"default:詳情待補","conf":"","cancel_status":"tip:待確認"},{"id":"2","region":"蒙特雷","icon":"M","icon_color":"#27500A","icon_bg":"#EAF3DE","name":"Monterey","dates":"Day 2（7/20 (一)） 入住","address":"","rows_md":"","tags":"default:詳情待補","conf":"","cancel_status":"tip:待確認"},{"id":"3","region":"舊金山","icon":"D","icon_color":"#534AB7","icon_bg":"#EEEDFE","name":"Club Donatello 441 Mason St. San Francisco","dates":"Day 4（7/22 (三)） 入住","address":"","rows_md":"備註 | parking fee $80 daily\n費用 | $80 daily","tags":"default:詳情待補","conf":"","cancel_status":"tip:待確認"}],"checklist":[]}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('trip-data').textContent);
+
+function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function parseInline(s){return escapeHtml(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');}
+
+function renderMd(text){
+  if(!text||!text.trim()) return '';
+  const lines=text.split('\n'); const out=[]; let listBuf=null;
+  const flushList=()=>{ if(listBuf){ out.push('<ul class="md-ul">'+listBuf.map(li=>`<li>${parseInline(li)}</li>`).join('')+'</ul>'); listBuf=null; } };
+  for(const raw of lines){
+    const trimmed=raw.replace(/\s+$/,'').trim();
+    if(!trimmed){ flushList(); out.push('<div class="md-break"></div>'); continue; }
+    if(trimmed.startsWith('## ')){ flushList(); out.push(`<div class="md-title">${parseInline(trimmed.slice(3))}</div>`); }
+    else if(trimmed.startsWith('### ')){ flushList(); out.push(`<div class="md-subtitle">${parseInline(trimmed.slice(4))}</div>`); }
+    else if(trimmed.startsWith('!warn ')){ flushList(); out.push(`<div class="md-warn">${parseInline(trimmed.slice(6))}</div>`); }
+    else if(trimmed.startsWith('!tip ')){ flushList(); out.push(`<div class="md-tip">${parseInline(trimmed.slice(5))}</div>`); }
+    else if(trimmed.startsWith('!info ')){ flushList(); out.push(`<div class="md-info">${parseInline(trimmed.slice(6))}</div>`); }
+    else if(trimmed.startsWith('- ')){ if(!listBuf) listBuf=[]; listBuf.push(trimmed.slice(2)); }
+    else { flushList(); out.push(`<div class="md-p">${parseInline(trimmed)}</div>`); }
+  }
+  flushList();
+  return `<div class="md-block">${out.join('')}</div>`;
+}
+
+function parseTags(s){
+  if(!s) return [];
+  return s.split(';').map(t=>t.trim()).filter(Boolean).map(t=>{
+    const i=t.indexOf(':');
+    if(i<0) return {type:'default',text:t};
+    return {type:t.slice(0,i).trim()||'default',text:t.slice(i+1).trim()};
+  });
+}
+
+function parseMealOptions(text){
+  if(!text||!text.trim()) return [];
+  return text.split(/\n\s*\n/).map(block=>{
+    const lines=block.split('\n').map(l=>l.trim()).filter(Boolean);
+    if(!lines.length) return null;
+    const m=lines[0].match(/^\[(best|alt)\]\s*(.+)$/);
+    if(!m) return null;
+    const best=m[1]==='best'; const name=m[2];
+    const rest=lines.slice(1);
+    const urls=rest.filter(l=>/^https?:\/\//.test(l));
+    const desc=rest.filter(l=>!/^https?:\/\//.test(l)).join(' ');
+    return {best,name,desc,urls};
+  }).filter(Boolean);
+}
+
+function parseHotelRows(text){
+  if(!text) return [];
+  return text.split('\n').map(l=>{
+    const i=l.indexOf('|');
+    if(i<0) return null;
+    return [l.slice(0,i).trim(),l.slice(i+1).trim()];
+  }).filter(Boolean);
+}
+
+function urlLabel(u){ try{return new URL(u).hostname.replace(/^www\./,'');}catch(_){return u;} }
+
+function renderHero(metaMap){
+  const k=(key)=>escapeHtml(metaMap[key]||'');
+  const pills=[1,2,3,4].filter(n=>metaMap[`pill_${n}`])
+    .map(n=>`<span class="hero-pill">${escapeHtml(metaMap[`pill_${n}`])}</span>`).join('');
+  document.getElementById('hero').innerHTML=`
+    <div class="hero-eyebrow">${k('eyebrow')}</div>
+    <h1>${k('title_main')} · <em>${k('title_em')}</em> · ${k('title_tail')}</h1>
+    <div class="hero-sub">${k('sub')}</div>
+    <div class="hero-pills">${pills}</div>`;
+}
+
+function renderNav(days,hasHotels){
+  const tabs=days.map((d,i)=>`
+    <div class="nav-tab${i===0?' active':''}" data-idx="${i}">
+      D${d.id} ${escapeHtml(d.title)}
+      <span class="nav-tab-sub">${escapeHtml(d.date)}</span>
+    </div>`).join('');
+  const hotelTab=hasHotels?`<div class="nav-tab" data-idx="${days.length}">飯店<span class="nav-tab-sub">Hotels</span></div>`:'';
+  document.getElementById('nav').innerHTML=tabs+hotelTab;
+  document.querySelectorAll('.nav-tab').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const idx=parseInt(el.dataset.idx,10);
+      document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t===el));
+      document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',parseInt(p.dataset.idx,10)===idx));
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+function renderMeal(label,meal){
+  if(!meal){
+    return `<div class="meal"><div class="meal-header" style="cursor:default">
+      <div class="meal-header-left"><div class="meal-lbl">${label}</div><div class="meal-empty">尚未安排</div></div>
+    </div></div>`;
+  }
+  const opts=parseMealOptions(meal.options_md);
+  const noteHtml=meal.note?`<div class="meal-note">${escapeHtml(meal.note)}</div>`:'';
+  const rootLink=(!opts.length&&meal.url)?`<a class="meal-link" href="${escapeHtml(meal.url)}" target="_blank" rel="noopener">🔗 餐廳網頁</a>`:'';
+  if(!opts.length){
+    return `<div class="meal"><div class="meal-header" style="cursor:default">
+      <div class="meal-header-left">
+        <div class="meal-lbl">${label}</div>
+        <div class="meal-name">${escapeHtml(meal.name)}</div>
+        ${noteHtml}${rootLink}
+      </div>
+    </div></div>`;
+  }
+  const optsHtml=opts.map(o=>{
+    const badge=`<span class="meal-option-badge ${o.best?'badge-best':'badge-alt'}">${o.best?'🏆 首選':'💡 備選'}</span>`;
+    const desc=o.desc?`<div style="margin-top:3px;color:#3a3530">${escapeHtml(o.desc)}</div>`:'';
+    const links=o.urls.map(u=>`<a class="meal-link" href="${escapeHtml(u)}" target="_blank" rel="noopener">🔗 ${escapeHtml(urlLabel(u))}</a>`).join('');
+    return `<div class="meal-option"><div class="meal-option-title">${badge}${escapeHtml(o.name)}</div>${desc}${links}</div>`;
+  }).join('');
+  return `<details class="meal">
+    <summary class="meal-header">
+      <div class="meal-header-left">
+        <div class="meal-lbl">${label}</div>
+        <div class="meal-name">${escapeHtml(meal.name)}</div>
+        ${noteHtml}
+      </div>
+      <span class="meal-toggle">▼</span>
+    </summary>
+    <div class="meal-body">${optsHtml}</div>
+  </details>`;
+}
+
+function renderMealsRow(m){
+  return `<div class="meals">${renderMeal('早餐',m.b)}${renderMeal('午餐',m.l)}${renderMeal('晚餐',m.d)}</div>`;
+}
+
+function renderRoutePill(s){
+  if(!s.route_path) return '';
+  let inner=`<span class="rpath">${escapeHtml(s.route_path)}</span>`;
+  if(s.route_time) inner+=`<span class="rdot">·</span><span>${escapeHtml(s.route_time)}</span>`;
+  if(s.route_warn) inner+=`<span class="rdot">·</span><span class="rwarn">${escapeHtml(s.route_warn)}</span>`;
+  return `<div class="route-pill"><span class="route-arrow">↓</span><div class="route-inner">${inner}</div></div>`;
+}
+
+function renderSpot(s){
+  const tags=parseTags(s.tags);
+  const tagHtml=tags.length?`<div class="spot-tags">${tags.map(t=>`<span class="tag tag-${t.type||'default'}">${escapeHtml(t.text)}</span>`).join('')}</div>`:'';
+  const extraHtml=s.extra_md?renderMd(s.extra_md):'';
+  const rentalHtml=s.rental_md?`<details class="rd"><summary>租車中心 + 路線說明</summary><div class="rd-body">${renderMd(s.rental_md)}</div></details>`:'';
+  const detailHtml=s.route_detail_md?`<details class="rd"><summary>詳細路線說明</summary><div class="rd-body">${renderMd(s.route_detail_md)}</div></details>`:'';
+  return `<div class="spot">
+    <div class="spot-time">${escapeHtml(s.time)}</div>
+    <div class="spot-title">${escapeHtml(s.title)}</div>
+    ${s.desc?`<div class="spot-desc">${escapeHtml(s.desc)}</div>`:''}
+    ${tagHtml}
+    ${extraHtml}
+  </div>${rentalHtml}${renderRoutePill(s)}${detailHtml}`;
+}
+
+function renderDayPage(day,spots,meals,idx){
+  return `<div class="page${idx===0?' active':''}" data-idx="${idx}"><div class="container">
+    <div class="day-hero">
+      <div class="day-num" style="color:${escapeHtml(day.color)}">D${escapeHtml(day.id)}</div>
+      <div class="day-date">${escapeHtml(day.date)} · ${escapeHtml(day.title)}</div>
+      <div class="day-theme">${escapeHtml(day.theme)}</div>
+      <div class="day-core">${escapeHtml(day.core)}</div>
+    </div>
+    <div class="sec-lbl">餐飲安排</div>
+    ${renderMealsRow(meals)}
+    <div class="sec-lbl">行程</div>
+    <div class="spots">${spots.map(renderSpot).join('')}</div>
+  </div></div>`;
+}
+
+function renderHotelCard(h){
+  const rows=parseHotelRows(h.rows_md);
+  const rowsHtml=rows.map(([l,v])=>`<div class="hotel-row"><span class="lbl">${escapeHtml(l)}</span><span class="val">${escapeHtml(v)}</span></div>`).join('');
+  const tags=parseTags(h.tags);
+  const tagsHtml=tags.length?`<div class="hotel-tags">${tags.map(t=>`<span class="tag tag-${t.type||'default'}">${escapeHtml(t.text)}</span>`).join('')}</div>`:'';
+  return `<div class="hotel-card">
+    <div class="hotel-head">
+      <div class="hotel-icon" style="background:${escapeHtml(h.icon_bg)};color:${escapeHtml(h.icon_color)}">${escapeHtml(h.icon)}</div>
+      <div><div class="hotel-name">${escapeHtml(h.name)}</div><div class="hotel-dates">${escapeHtml(h.dates)}</div></div>
+    </div>
+    <div class="hotel-body">
+      ${h.address?`<div class="hotel-addr">${escapeHtml(h.address)}</div>`:''}
+      ${rowsHtml}${tagsHtml}
+      ${h.conf?`<div class="hotel-conf">${escapeHtml(h.conf)}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderHotelsPage(hotels,dayCount){
+  if(!hotels.length) return '';
+  const regions=[]; const byRegion={};
+  for(const h of hotels){
+    const r=h.region||'飯店';
+    if(!byRegion[r]){ byRegion[r]=[]; regions.push(r); }
+    byRegion[r].push(h);
+  }
+  const sections=regions.map(r=>`
+    <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">${escapeHtml(r)}</div><div class="sec-div-line"></div></div>
+    <div class="hotels-grid">${byRegion[r].map(renderHotelCard).join('')}</div>
+  `).join('');
+  return `<div class="page" data-idx="${dayCount}"><div class="container">${sections}</div></div>`;
+}
+
+(function(){
+  const metaMap={};
+  DATA.meta.forEach(r=>{ if(r.key) metaMap[r.key]=r.value||''; });
+
+  const spotsByDay={};
+  DATA.spots.forEach(s=>{ (spotsByDay[s.day_id]=spotsByDay[s.day_id]||[]).push(s); });
+  const mealsByDay={};
+  DATA.meals.forEach(m=>{ mealsByDay[m.day_id]=mealsByDay[m.day_id]||{}; mealsByDay[m.day_id][m.slot]=m; });
+
+  renderHero(metaMap);
+  renderNav(DATA.days,DATA.hotels.length>0);
+
+  document.getElementById('pages').innerHTML=
+    DATA.days.map((d,i)=>renderDayPage(d,spotsByDay[d.id]||[],mealsByDay[d.id]||{},i)).join('')
+    + renderHotelsPage(DATA.hotels,DATA.days.length);
+})();
+</script>
+</body>
+</html>
